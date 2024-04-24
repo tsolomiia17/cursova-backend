@@ -81,9 +81,12 @@ public class TrainController {
         for (Carriage existingCarriage : train.getCarriages()) {
             existingCarriageTypes.add(existingCarriage.getType());
         }
-
-        if (existingCarriageTypes.size() >= train.getDirections().size()) {
-            throw new RuntimeException("Кількість типів вагонів перевищує кількість напрямків потяга");
+        System.out.println(existingCarriageTypes);
+        System.out.println(carriage.getType());
+        if(!existingCarriageTypes.contains(carriage.getType())){
+            if (existingCarriageTypes.size() >= train.getDirections().size()) {
+                throw new RuntimeException("Кількість типів вагонів перевищує кількість напрямків потяга");
+            }
         }
 
         Carriage createdCarriage = carriageRepository.save(carriage);
