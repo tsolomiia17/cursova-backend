@@ -1,10 +1,11 @@
 package com.example.demo.controllers;
 
 import com.example.demo.models.Carriage;
+import com.example.demo.models.Report;
+import com.example.demo.repositories.ReportRepository;
 import com.example.demo.repositories.TrainRepository;
 import com.example.demo.repositories.CarriageRepository;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,10 +20,11 @@ import java.util.stream.Collectors;
 public class TrainController {
     private final TrainRepository trainRepository;
     private final CarriageRepository carriageRepository;
-
-    public TrainController(TrainRepository trainRepository, CarriageRepository carriageRepository) {
+    private final ReportRepository reportRepository;
+    public TrainController(TrainRepository trainRepository, CarriageRepository carriageRepository,ReportRepository reportRepository) {
         this.trainRepository = trainRepository;
         this.carriageRepository = carriageRepository;
+        this.reportRepository = reportRepository;
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -51,11 +53,10 @@ public class TrainController {
         return trainOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTrain(@PathVariable String id) {
         Optional<Train> trainOptional = trainRepository.findById(id);
-        if (!trainOptional.isPresent()) {
+        if (trainOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
@@ -64,11 +65,13 @@ public class TrainController {
                 .map(Carriage::getId)
                 .collect(Collectors.toList());
 
+        List<Report> reports = reportRepository.findByTrainId(id);
+        reportRepository.deleteAll(reports);
         carriageRepository.deleteAllByIdIn(carriageIds);
         trainRepository.deleteById(id);
-
         return ResponseEntity.ok().build();
     }
+
 
     @PostMapping("/{trainId}/carriages")
     public Train addCarriageToTrain(@Valid @PathVariable String trainId, @RequestBody Carriage carriage) {

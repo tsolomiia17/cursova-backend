@@ -35,7 +35,7 @@ public class ReportController {
         List<ReportWithCarriages> reportsWithCarriages = reports.stream()
                 .map(report -> {
                     Train train = trainRepository.findById(report.getTrainId()).orElse(null);
-                    return new ReportWithCarriages(report, train != null ? train.getCarriages() : null);
+                    return new ReportWithCarriages(report, train != null ? train.getCarriages() : null, train != null ? train.getName() : null);
                 })
                 .collect(Collectors.toList());
 
@@ -47,10 +47,11 @@ public class ReportController {
     static class ReportWithCarriages {
         private Report report;
         private List<Carriage> carriages;
-
-        public ReportWithCarriages(Report report, List<Carriage> carriages) {
+        private String trainName;
+        public ReportWithCarriages(Report report, List<Carriage> carriages,String trainName) {
             this.report = report;
             this.carriages = carriages;
+            this.trainName = trainName;
         }
 
     }
