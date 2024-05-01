@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.demo.repositories.ReportRepository;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import com.example.demo.models.Carriage;
 
@@ -41,7 +42,16 @@ public class ReportController {
 
         return ResponseEntity.ok(reportsWithCarriages);
     }
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteReport(@PathVariable String id) {
+        Optional<Report> report = reportRepository.findById(id);
+        if (report.isPresent()) {
+            reportRepository.delete(report.get());
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     @Setter
     @Getter
     static class ReportWithCarriages {
